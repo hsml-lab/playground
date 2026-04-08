@@ -1,0 +1,53 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    "schedule:earlyMondays",
+    "group:allNonMajor",
+    ":prHourlyLimitNone"
+  ],
+  "timezone": "Europe/Berlin",
+  "labels": ["c: dependencies"],
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "groupName": "devDependencies",
+      "matchDepTypes": ["devDependencies"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "groupName": "dependencies",
+      "matchDepTypes": ["dependencies"],
+      "rangeStrategy": "replace"
+    },
+    {
+      "groupName": "engines",
+      "matchDepTypes": ["engines"],
+      "rangeStrategy": "replace"
+    },
+    {
+      "groupName": "oxlint",
+      "matchPackageNames": ["oxlint"]
+    },
+    {
+      "groupName": "oxfmt",
+      "matchPackageNames": ["oxfmt"]
+    },
+    {
+      "groupName": "codemirror",
+      "matchPackageNames": ["codemirror", "@codemirror/**"]
+    },
+    {
+      "groupName": "typescript",
+      "matchPackageNames": ["typescript"]
+    }
+  ],
+  "reviewersFromCodeOwners": true,
+  "rangeStrategy": "bump",
+  "vulnerabilityAlerts": {
+    "labels": ["c: security"],
+    "assignees": ["@Shinigami92"]
+  }
+}

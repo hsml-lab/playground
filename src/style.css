@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-border: hsl(var(--border));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 220 12% 8%;
+  --sidebar: 220 8% 96%;
+  --sidebar-foreground: 220 12% 8%;
+  --border: 220 8% 88%;
+  --muted: 220 8% 95%;
+  --muted-foreground: 220 6% 44%;
+  --primary: 210 80% 50%;
+  --primary-foreground: 0 0% 98%;
+}
+
+.dark {
+  --background: 220 12% 7%;
+  --foreground: 0 0% 95%;
+  --sidebar: 220 12% 5%;
+  --sidebar-foreground: 0 0% 95%;
+  --border: 220 8% 16%;
+  --muted: 220 8% 14%;
+  --muted-foreground: 220 6% 58%;
+  --primary: 210 80% 55%;
+  --primary-foreground: 220 12% 7%;
+  color-scheme: dark;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+.sidebar {
+  transition: width 200ms ease;
+}
+
+.sidebar-open {
+  width: 256px;
+}
+
+.sidebar-closed {
+  width: 0;
+  border-right-width: 0;
+}
+
+.cm-editor {
+  height: 100%;
+}
+
+.cm-scroller {
+  overflow: auto;
+}
+
+.dark .cm-editor {
+  background-color: #1e1e1e;
+}
+
+.dark .cm-gutters {
+  background-color: #1e1e1e;
+}
+
+.editor-readonly .cm-editor {
+  background-color: hsl(220 8% 96%);
+}
+
+.dark .editor-readonly .cm-editor {
+  background-color: #101015;
+}
+
+.dark .editor-readonly .cm-gutters {
+  background-color: #101015;
+}
