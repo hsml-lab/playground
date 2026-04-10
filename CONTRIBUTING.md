@@ -42,7 +42,7 @@ pnpm run ts-check
 
 ### Preflight
 
-Runs all checks (format, lint, type check, build) in sequence:
+Runs all checks (format, lint, type check, build, e2e tests) in sequence:
 
 ```sh
 pnpm run preflight

@@ -41,7 +41,7 @@
     "lint": "oxlint",
     "ts-check": "vue-tsc --noEmit",
     "test:e2e": "playwright test",
-    "preflight": "pnpm install && run-s format lint ts-check build test:e2e"
+    "preflight": "pnpm install && pnpm exec playwright install chromium && run-s format lint ts-check build test:e2e"
   },
   "dependencies": {
     "@codemirror/lang-html": "6.4.11",
