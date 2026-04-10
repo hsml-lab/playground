@@ -205,3 +205,76 @@ test.describe('URL state sharing', () => {
     await expect(editor).toContainText('p.hello');
   });
 });
+
+test.describe('convert mode (HTML → HSML)', () => {
+  async function switchToConvertMode(page: Page) {
+    await expandSidebar(page);
+    await page.getByRole('button', { name: 'HTML → HSML' }).click();
+  }
+
+  test('switches to convert mode', async ({ page }) => {
+    await page.goto('./');
+    await switchToConvertMode(page);
+
+    // HTML editor should be visible with default content
+    const htmlEditor = page.locator(HSML_EDITOR);
+    await expect(htmlEditor).toContainText('<!DOCTYPE html>');
+  });
+
+  test('converts HTML to HSML', async ({ page }) => {
+    await page.goto('./');
+    await switchToConvertMode(page);
+
+    const htmlEditor = page.locator(HSML_EDITOR);
+    const hsmlOutput = page.locator(HTML_OUTPUT);
+
+    await htmlEditor.click();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type('<div class="hello"><p>World</p></div>');
+
+    await expect(hsmlOutput).toContainText('.hello');
+    await expect(hsmlOutput).toContainText('p');
+  });
+
+  test('hides compile options in convert mode', async ({ page }) => {
+    await page.goto('./');
+    await switchToConvertMode(page);
+
+    await expect(page.getByText('Formatter')).not.toBeVisible();
+    await expect(page.getByText('Pretty print')).not.toBeVisible();
+    await expect(page.getByText('Show diagnostics')).not.toBeVisible();
+  });
+
+  test('preserves mode in URL hash', async ({ page }) => {
+    await page.goto('./');
+    await switchToConvertMode(page);
+
+    // URL should contain h: prefix
+    await expect(page).toHaveURL(/h:/);
+  });
+
+  test('restores convert mode from URL hash', async ({ page }) => {
+    const source = '<p>Hello</p>';
+    const encoded = 'h:' + Buffer.from(encodeURIComponent(source)).toString('base64');
+
+    await page.goto(`./#${encoded}`);
+
+    // Should be in convert mode with the HTML content
+    const htmlEditor = page.locator(HSML_EDITOR);
+    await expect(htmlEditor).toContainText('<p>Hello</p>');
+
+    // HSML output should show conversion result
+    const hsmlOutput = page.locator(HTML_OUTPUT);
+    await expect(hsmlOutput).toContainText('p');
+  });
+
+  test('switches back to compile mode', async ({ page }) => {
+    await page.goto('./');
+    await switchToConvertMode(page);
+    await page.getByRole('button', { name: 'HSML → HTML' }).click();
+
+    // Should show HSML editor with default content
+    const editor = page.locator(HSML_EDITOR);
+    await expect(editor).toContainText('doctype html');
+  });
+});

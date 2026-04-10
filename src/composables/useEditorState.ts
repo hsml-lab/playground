@@ -1,8 +1,10 @@
 import { reactive, ref, watch } from 'vue';
-import { compile, format } from './useHsml';
+import { compile, format, htmlToHsml } from './useHsml';
 import type { HsmlDiagnostic } from './useHsml';
 
-const DEFAULT_SOURCE = `doctype html
+export type ConversionMode = 'compile' | 'convert';
+
+const DEFAULT_HSML_SOURCE = `doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
@@ -16,33 +18,69 @@ html(lang="en")
       button(type="button") Click me
 `;
 
-function readSourceFromHash(): string | undefined {
+const DEFAULT_HTML_INPUT = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HSML Playground</title>
+  </head>
+  <body>
+    <h1 id="greeting" class="text-lg">Hello, HSML!</h1>
+    <div class="card">
+      <p class="card__body">Convert me to HSML!</p>
+      <button type="button">Click me</button>
+    </div>
+  </body>
+</html>
+`;
+
+function readFromHash(): { mode: ConversionMode; source: string } | undefined {
   const hash = window.location.hash.slice(1);
   if (!hash) return undefined;
   try {
-    return decodeURIComponent(atob(hash));
+    if (hash.startsWith('h:')) {
+      return { mode: 'convert', source: decodeURIComponent(atob(hash.slice(2))) };
+    }
+    if (hash.startsWith('c:')) {
+      return { mode: 'compile', source: decodeURIComponent(atob(hash.slice(2))) };
+    }
+    // Backward compat: no prefix = compile mode
+    return { mode: 'compile', source: decodeURIComponent(atob(hash)) };
   } catch {
     return undefined;
   }
 }
 
-function writeSourceToHash(source: string): void {
-  const encoded = btoa(encodeURIComponent(source));
+function writeToHash(mode: ConversionMode, source: string): void {
+  const prefix = mode === 'convert' ? 'h:' : 'c:';
+  const encoded = prefix + btoa(encodeURIComponent(source));
   history.replaceState(null, '', `#${encoded}`);
 }
 
-const hsmlSource = ref(readSourceFromHash() ?? DEFAULT_SOURCE);
+const hashState = readFromHash();
+
+const conversionMode = ref<ConversionMode>(hashState?.mode ?? 'compile');
+const hsmlSource = ref(
+  hashState?.mode === 'compile' ? (hashState?.source ?? DEFAULT_HSML_SOURCE) : DEFAULT_HSML_SOURCE,
+);
 const htmlOutput = ref('');
 const diagnostics = ref<HsmlDiagnostic[]>([]);
 const showDiagnostics = ref(true);
 const prettyPrint = ref(true);
+
+const htmlInput = ref(
+  hashState?.mode === 'convert' ? (hashState?.source ?? DEFAULT_HTML_INPUT) : DEFAULT_HTML_INPUT,
+);
+const hsmlOutput = ref('');
+const convertError = ref('');
 
 const formatterOptions = reactive({
   indentSize: 2,
   printWidth: 80,
 });
 
-let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+let compileTimer: ReturnType<typeof setTimeout> | undefined;
+let convertTimer: ReturnType<typeof setTimeout> | undefined;
 
 function compileSource() {
   const result = compile(hsmlSource.value, {
@@ -53,17 +91,62 @@ function compileSource() {
   diagnostics.value = result.diagnostics;
 }
 
+function convertSource() {
+  try {
+    hsmlOutput.value = htmlToHsml(htmlInput.value);
+    convertError.value = '';
+  } catch (e) {
+    hsmlOutput.value = '';
+    convertError.value = e instanceof Error ? e.message : String(e);
+  }
+}
+
+// HSML → HTML compilation
 watch(
   [hsmlSource, prettyPrint],
   () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
+    if (conversionMode.value !== 'compile') return;
+    clearTimeout(compileTimer);
+    compileTimer = setTimeout(() => {
+      if (conversionMode.value !== 'compile') return;
       compileSource();
-      writeSourceToHash(hsmlSource.value);
+      writeToHash('compile', hsmlSource.value);
     }, 150);
   },
   { immediate: true },
 );
+
+// HTML → HSML conversion
+watch(
+  [htmlInput],
+  () => {
+    if (conversionMode.value !== 'convert') return;
+    clearTimeout(convertTimer);
+    convertTimer = setTimeout(() => {
+      if (conversionMode.value !== 'convert') return;
+      convertSource();
+      writeToHash('convert', htmlInput.value);
+    }, 150);
+  },
+  { immediate: true },
+);
+
+// Trigger on mode switch — carry over the output as the new input
+watch(conversionMode, (mode) => {
+  if (mode === 'compile') {
+    if (hsmlOutput.value) {
+      hsmlSource.value = hsmlOutput.value;
+    }
+    compileSource();
+    writeToHash('compile', hsmlSource.value);
+  } else {
+    if (htmlOutput.value) {
+      htmlInput.value = htmlOutput.value;
+    }
+    convertSource();
+    writeToHash('convert', htmlInput.value);
+  }
+});
 
 export function useEditorState() {
   function formatSource() {
@@ -78,11 +161,15 @@ export function useEditorState() {
   }
 
   return {
+    conversionMode,
     hsmlSource,
     htmlOutput,
     diagnostics,
     showDiagnostics,
     prettyPrint,
+    htmlInput,
+    hsmlOutput,
+    convertError,
     formatterOptions,
     formatSource,
   };
