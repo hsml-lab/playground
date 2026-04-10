@@ -40,7 +40,8 @@
     "format:check": "oxfmt --check .",
     "lint": "oxlint",
     "ts-check": "vue-tsc --noEmit",
-    "preflight": "pnpm install && run-s format lint ts-check build"
+    "test:e2e": "playwright test",
+    "preflight": "pnpm install && pnpm exec playwright install chromium && run-s format lint ts-check build test:e2e"
   },
   "dependencies": {
     "@codemirror/lang-html": "6.4.11",
@@ -56,6 +57,7 @@
     "vue": "3.5.32"
   },
   "devDependencies": {
+    "@playwright/test": "1.59.1",
     "@tailwindcss/vite": "4.2.2",
     "@types/node": "25.6.0",
     "@vitejs/plugin-vue": "6.0.5",

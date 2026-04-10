@@ -13,9 +13,9 @@ div(class="h-screen flex flex-col bg-background")
   AppHeader
   div(class="flex flex-1 min-h-0")
     SidebarPanel(:class="sidebarOpen ? 'sidebar-open' : 'sidebar-closed'")
-    main(class="flex flex-1 min-h-0 min-w-0")
-      div(class="flex-1 min-w-0 basis-0 border-r border-border")
+    main(class="flex flex-col md:flex-row flex-1 min-h-0 min-w-0")
+      div(class="flex-1 min-w-0 min-h-0 basis-0 md:border-r border-b md:border-b-0 border-border")
         HsmlEditor
-      div(class="flex-1 min-w-0 basis-0")
+      div(class="flex-1 min-w-0 min-h-0 basis-0")
         HtmlOutput
 </template>

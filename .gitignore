@@ -85,3 +85,6 @@ dist/
 node_modules/
 
 .claude/
+.playwright-mcp/
+test-results/
+playwright-report/
