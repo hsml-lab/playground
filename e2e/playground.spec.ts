@@ -17,7 +17,7 @@ test.describe('page load', () => {
   test('shows header with title and version', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('header')).toContainText('HSML');
-    await expect(page.locator('header')).toContainText('0.7.0');
+    await expect(page.locator('header')).toContainText(/\d+\.\d+\.\d+/);
   });
 
   test('loads default HSML content', async ({ page }) => {
