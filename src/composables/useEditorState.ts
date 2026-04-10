@@ -133,6 +133,8 @@ watch(
 
 // Trigger on mode switch — carry over the output as the new input
 watch(conversionMode, (mode) => {
+  clearTimeout(compileTimer);
+  clearTimeout(convertTimer);
   if (mode === 'compile') {
     if (hsmlOutput.value) {
       hsmlSource.value = hsmlOutput.value;

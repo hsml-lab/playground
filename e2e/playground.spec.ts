@@ -1,8 +1,8 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
 
-const HSML_EDITOR = ':not(.editor-readonly) > .cm-editor .cm-content';
-const HTML_OUTPUT = '.editor-readonly .cm-editor .cm-content';
+const EDITABLE_EDITOR = ':not(.editor-readonly) > .cm-editor .cm-content';
+const READONLY_OUTPUT = '.editor-readonly .cm-editor .cm-content';
 
 function sidebarToggle(page: Page) {
   return page.getByRole('button', { name: /sidebar/i });
@@ -30,14 +30,14 @@ test.describe('page load', () => {
 
   test('loads default HSML content', async ({ page }) => {
     await page.goto('./');
-    const editor = page.locator(HSML_EDITOR);
+    const editor = page.locator(EDITABLE_EDITOR);
     await expect(editor).toContainText('doctype html');
     await expect(editor).toContainText('h1#greeting');
   });
 
   test('compiles default content to HTML', async ({ page }) => {
     await page.goto('./');
-    const output = page.locator(HTML_OUTPUT);
+    const output = page.locator(READONLY_OUTPUT);
     await expect(output).toContainText('<!DOCTYPE html>');
     await expect(output).toContainText('<h1');
   });
@@ -46,8 +46,8 @@ test.describe('page load', () => {
 test.describe('live compilation', () => {
   test('updates HTML output when typing', async ({ page }) => {
     await page.goto('./');
-    const editor = page.locator(HSML_EDITOR);
-    const output = page.locator(HTML_OUTPUT);
+    const editor = page.locator(EDITABLE_EDITOR);
+    const output = page.locator(READONLY_OUTPUT);
 
     await editor.click();
     await page.keyboard.press('ControlOrMeta+A');
@@ -60,7 +60,7 @@ test.describe('live compilation', () => {
 test.describe('pretty print', () => {
   test('outputs indented HTML by default', async ({ page }) => {
     await page.goto('./');
-    const output = page.locator(HTML_OUTPUT);
+    const output = page.locator(READONLY_OUTPUT);
     await expect(output.locator('.cm-line')).not.toHaveCount(1);
   });
 
@@ -71,7 +71,7 @@ test.describe('pretty print', () => {
     const toggle = page.getByText('Pretty print').locator('..');
     await toggle.locator('button[role="switch"]').click();
 
-    const output = page.locator(HTML_OUTPUT);
+    const output = page.locator(READONLY_OUTPUT);
     await expect.poll(() => output.locator('.cm-line').count()).toBeLessThanOrEqual(2);
   });
 });
@@ -83,10 +83,10 @@ test.describe('formatter', () => {
 
     await page.getByRole('button', { name: 'Format' }).click();
 
-    const output = page.locator(HTML_OUTPUT);
+    const output = page.locator(READONLY_OUTPUT);
     await expect(output).toContainText('<!DOCTYPE html>');
 
-    const editor = page.locator(HSML_EDITOR);
+    const editor = page.locator(EDITABLE_EDITOR);
     await expect(editor).toContainText('doctype html');
   });
 });
@@ -94,7 +94,7 @@ test.describe('formatter', () => {
 test.describe('diagnostics', () => {
   test('shows diagnostic for duplicate IDs', async ({ page }) => {
     await page.goto('./');
-    const editor = page.locator(HSML_EDITOR);
+    const editor = page.locator(EDITABLE_EDITOR);
 
     await editor.click();
     await page.keyboard.press('ControlOrMeta+A');
@@ -106,7 +106,7 @@ test.describe('diagnostics', () => {
 
   test('hides diagnostics when toggle is off', async ({ page }) => {
     await page.goto('./');
-    const editor = page.locator(HSML_EDITOR);
+    const editor = page.locator(EDITABLE_EDITOR);
 
     await editor.click();
     await page.keyboard.press('ControlOrMeta+A');
@@ -186,7 +186,7 @@ test.describe('URL state sharing', () => {
   test('encodes source in URL hash', async ({ page }) => {
     await page.goto('./');
     const initialUrl = page.url();
-    const editor = page.locator(HSML_EDITOR);
+    const editor = page.locator(EDITABLE_EDITOR);
 
     await editor.click();
     await page.keyboard.press('ControlOrMeta+A');
@@ -201,7 +201,7 @@ test.describe('URL state sharing', () => {
     const encoded = Buffer.from(encodeURIComponent(source)).toString('base64');
 
     await page.goto(`./#${encoded}`);
-    const editor = page.locator(HSML_EDITOR);
+    const editor = page.locator(EDITABLE_EDITOR);
     await expect(editor).toContainText('p.hello');
   });
 });
@@ -217,7 +217,7 @@ test.describe('convert mode (HTML → HSML)', () => {
     await switchToConvertMode(page);
 
     // HTML editor should be visible with default content
-    const htmlEditor = page.locator(HSML_EDITOR);
+    const htmlEditor = page.locator(EDITABLE_EDITOR);
     await expect(htmlEditor).toContainText('<!DOCTYPE html>');
   });
 
@@ -225,8 +225,8 @@ test.describe('convert mode (HTML → HSML)', () => {
     await page.goto('./');
     await switchToConvertMode(page);
 
-    const htmlEditor = page.locator(HSML_EDITOR);
-    const hsmlOutput = page.locator(HTML_OUTPUT);
+    const htmlEditor = page.locator(EDITABLE_EDITOR);
+    const hsmlOutput = page.locator(READONLY_OUTPUT);
 
     await htmlEditor.click();
     await page.keyboard.press('ControlOrMeta+A');
@@ -260,11 +260,11 @@ test.describe('convert mode (HTML → HSML)', () => {
     await page.goto(`./#${encoded}`);
 
     // Should be in convert mode with the HTML content
-    const htmlEditor = page.locator(HSML_EDITOR);
+    const htmlEditor = page.locator(EDITABLE_EDITOR);
     await expect(htmlEditor).toContainText('<p>Hello</p>');
 
     // HSML output should show conversion result
-    const hsmlOutput = page.locator(HTML_OUTPUT);
+    const hsmlOutput = page.locator(READONLY_OUTPUT);
     await expect(hsmlOutput).toContainText('p');
   });
 
@@ -274,7 +274,7 @@ test.describe('convert mode (HTML → HSML)', () => {
     await page.getByRole('button', { name: 'HSML → HTML' }).click();
 
     // Should show HSML editor with default content
-    const editor = page.locator(HSML_EDITOR);
+    const editor = page.locator(EDITABLE_EDITOR);
     await expect(editor).toContainText('doctype html');
   });
 });
