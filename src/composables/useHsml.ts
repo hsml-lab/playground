@@ -1,4 +1,4 @@
-import { compileContentWithDiagnostics, formatContent } from 'hsml';
+import { compileContentWithDiagnostics, convertHtml, formatContent } from 'hsml';
 
 export interface HsmlDiagnostic {
   severity: 'error' | 'warning';
@@ -16,8 +16,13 @@ export interface HsmlCompileResult {
   diagnostics: HsmlDiagnostic[];
 }
 
-export function compile(source: string): HsmlCompileResult {
-  return compileContentWithDiagnostics(source) as HsmlCompileResult;
+export interface CompileOptions {
+  pretty?: boolean;
+  indentSize?: number;
+}
+
+export function compile(source: string, options: CompileOptions = {}): HsmlCompileResult {
+  return compileContentWithDiagnostics(source, options) as HsmlCompileResult;
 }
 
 export function format(
@@ -25,4 +30,8 @@ export function format(
   options: { indentSize?: number; printWidth?: number } = {},
 ): string {
   return formatContent(source, options);
+}
+
+export function htmlToHsml(html: string): string {
+  return convertHtml(html);
 }

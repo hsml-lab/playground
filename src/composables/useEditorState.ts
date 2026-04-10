@@ -35,6 +35,7 @@ const hsmlSource = ref(readSourceFromHash() ?? DEFAULT_SOURCE);
 const htmlOutput = ref('');
 const diagnostics = ref<HsmlDiagnostic[]>([]);
 const showDiagnostics = ref(true);
+const prettyPrint = ref(true);
 
 const formatterOptions = reactive({
   indentSize: 2,
@@ -44,13 +45,16 @@ const formatterOptions = reactive({
 let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
 function compileSource() {
-  const result = compile(hsmlSource.value);
+  const result = compile(hsmlSource.value, {
+    pretty: prettyPrint.value,
+    indentSize: formatterOptions.indentSize,
+  });
   htmlOutput.value = result.html ?? '';
   diagnostics.value = result.diagnostics;
 }
 
 watch(
-  hsmlSource,
+  [hsmlSource, prettyPrint],
   () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
@@ -78,6 +82,7 @@ export function useEditorState() {
     htmlOutput,
     diagnostics,
     showDiagnostics,
+    prettyPrint,
     formatterOptions,
     formatSource,
   };

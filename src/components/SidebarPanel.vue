@@ -2,7 +2,7 @@
 import { useEditorState } from '../composables/useEditorState';
 import ToggleSwitch from './ToggleSwitch.vue';
 
-const { formatterOptions, showDiagnostics, formatSource } = useEditorState();
+const { formatterOptions, showDiagnostics, prettyPrint, formatSource } = useEditorState();
 </script>
 
 <template lang="hsml">
@@ -34,6 +34,12 @@ aside(class="sidebar shrink-0 h-full overflow-hidden bg-sidebar border-r border-
             class="w-full px-3 py-1.5 text-sm font-medium rounded bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
             @click="formatSource"
           ) Format
+      hr(class="border-border")
+      div
+        h3(class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3") Compiler
+        label(class="flex items-center gap-2 text-sm text-sidebar-foreground cursor-pointer")
+          ToggleSwitch(v-model="prettyPrint")
+          span Pretty print
       hr(class="border-border")
       div
         h3(class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3") Diagnostics
