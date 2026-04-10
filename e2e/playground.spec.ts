@@ -149,6 +149,12 @@ test.describe('theme toggle', () => {
 });
 
 test.describe('sidebar', () => {
+  test('has animated transition', async ({ page }) => {
+    await page.goto('/');
+    const sidebar = page.locator('aside');
+    await expect(sidebar).toHaveCSS('transition', /width/);
+  });
+
   test('has correct default state for viewport', async ({ page, viewport }) => {
     await page.goto('/');
     const sidebar = page.locator('aside');
