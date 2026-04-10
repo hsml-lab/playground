@@ -91,6 +91,37 @@ test.describe('formatter', () => {
   });
 });
 
+test.describe('indentation', () => {
+  test('Tab inserts two spaces', async ({ page }) => {
+    await page.goto('./');
+    const editor = page.locator(EDITABLE_EDITOR);
+
+    await editor.click();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type('div');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Tab');
+    await page.keyboard.type('span');
+
+    await expect(editor).toContainText('  span');
+  });
+
+  test('Shift+Tab removes two spaces', async ({ page }) => {
+    await page.goto('./');
+    const editor = page.locator(EDITABLE_EDITOR);
+
+    await editor.click();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type('div');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('    span');
+    await page.keyboard.press('Home');
+    await page.keyboard.press('Shift+Tab');
+
+    await expect(editor).toContainText('  span');
+  });
+});
+
 test.describe('diagnostics', () => {
   test('shows diagnostic for duplicate IDs', async ({ page }) => {
     await page.goto('./');

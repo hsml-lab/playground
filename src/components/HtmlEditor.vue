@@ -24,12 +24,24 @@ onMounted(() => {
     }
   });
 
-  const tabSize = keymap.of([
+  const indentKeymap = keymap.of([
     {
       key: 'Tab',
       run: (view) => {
         view.dispatch(view.state.replaceSelection('  '));
         return true;
+      },
+    },
+    {
+      key: 'Shift-Tab',
+      run: (view) => {
+        const { state } = view;
+        const line = state.doc.lineAt(state.selection.main.head);
+        if (line.text.startsWith('  ')) {
+          view.dispatch({ changes: { from: line.from, to: line.from + 2 } });
+          return true;
+        }
+        return false;
       },
     },
   ]);
@@ -39,7 +51,7 @@ onMounted(() => {
       doc: htmlInput.value,
       extensions: [
         basicSetup,
-        tabSize,
+        indentKeymap,
         updateListener,
         html(),
         themeCompartment.of(theme.value === 'dark' ? oneDark : []),
