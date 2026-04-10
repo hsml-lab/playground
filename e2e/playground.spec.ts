@@ -8,7 +8,8 @@ async function expandSidebar(page: import('@playwright/test').Page) {
   const box = await sidebar.boundingBox();
   if (!box || box.width === 0) {
     await page.locator('header button').first().click();
-    await page.waitForTimeout(300);
+    // Wait for sidebar animation to complete
+    await expect(sidebar).not.toHaveCSS('width', '0px');
   }
 }
 
@@ -45,7 +46,7 @@ test.describe('live compilation', () => {
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type('p.hello');
 
-    await expect(output).toContainText('<p class="hello"></p>', { timeout: 3000 });
+    await expect(output).toContainText('<p class="hello"></p>');
   });
 });
 
@@ -65,12 +66,11 @@ test.describe('pretty print', () => {
     const toggle = page.getByText('Pretty print').locator('..');
     await toggle.locator('button[role="switch"]').click();
 
-    // Wait for recompilation
-    await page.waitForTimeout(500);
-
+    // Output should collapse to at most 2 lines (content + possible trailing empty line)
     const output = page.locator(HTML_OUTPUT);
-    const lineCount = await output.locator('.cm-line').count();
-    expect(lineCount).toBeLessThanOrEqual(2);
+    await expect
+      .poll(() => output.locator('.cm-line').count())
+      .toBeLessThanOrEqual(2);
   });
 });
 
@@ -97,37 +97,35 @@ test.describe('diagnostics', () => {
     await page.goto('/');
     const editor = page.locator(HSML_EDITOR);
 
-    // Clear and type HSML with duplicate IDs
+    // Clear and type HSML with duplicate IDs on same element
     await editor.click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type('h1#foo#bar');
 
-    // Wait for compilation + lint
-    await page.waitForTimeout(1000);
-
-    // Diagnostic markers should appear
+    // Diagnostic markers should appear (auto-waits)
     const diagnostics = page.locator('.cm-lintRange-warning, .cm-lintRange-error');
-    await expect(diagnostics.first()).toBeVisible({ timeout: 3000 });
+    await expect(diagnostics.first()).toBeVisible();
   });
 
   test('hides diagnostics when toggle is off', async ({ page }) => {
     await page.goto('/');
     const editor = page.locator(HSML_EDITOR);
 
-    // Type HSML with duplicate IDs
+    // Type HSML with duplicate IDs on same element
     await editor.click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type('h1#foo#bar');
-    await page.waitForTimeout(1000);
+
+    // Wait for diagnostics to appear first
+    const diagnostics = page.locator('.cm-lintRange-warning, .cm-lintRange-error');
+    await expect(diagnostics.first()).toBeVisible();
 
     // Expand sidebar and toggle diagnostics off
     await expandSidebar(page);
     const toggle = page.getByText('Show diagnostics').locator('..');
     await toggle.locator('button[role="switch"]').click();
-    await page.waitForTimeout(500);
 
-    // Diagnostic markers should be gone
-    const diagnostics = page.locator('.cm-lintRange-warning, .cm-lintRange-error');
+    // Diagnostic markers should disappear
     await expect(diagnostics).toHaveCount(0);
   });
 });
@@ -161,22 +159,15 @@ test.describe('sidebar', () => {
     const menuButton = page.locator('header button').first();
 
     // Sidebar should be expanded on desktop
-    const boxBefore = await sidebar.boundingBox();
-    expect(boxBefore!.width).toBeGreaterThan(0);
+    await expect(sidebar).not.toHaveCSS('width', '0px');
 
     // Click hamburger to collapse
     await menuButton.click();
-    await page.waitForTimeout(300);
-
-    const boxAfter = await sidebar.boundingBox();
-    expect(boxAfter?.width).toBe(0);
+    await expect(sidebar).toHaveCSS('width', '0px');
 
     // Click again to expand
     await menuButton.click();
-    await page.waitForTimeout(300);
-
-    const boxFinal = await sidebar.boundingBox();
-    expect(boxFinal!.width).toBeGreaterThan(0);
+    await expect(sidebar).not.toHaveCSS('width', '0px');
   });
 });
 
@@ -186,28 +177,23 @@ test.describe('responsive layout', () => {
 
     await page.goto('/');
     const sidebar = page.locator('aside');
-    const box = await sidebar.boundingBox();
-    expect(box!.width).toBeGreaterThan(0);
+    await expect(sidebar).not.toHaveCSS('width', '0px');
   });
 
   test('sidebar collapsed by default on tablet', async ({ page, viewport }) => {
     if (!viewport || viewport.width >= 1024) test.skip();
 
     await page.goto('/');
-    await page.waitForTimeout(300);
     const sidebar = page.locator('aside');
-    const box = await sidebar.boundingBox();
-    expect(box?.width).toBe(0);
+    await expect(sidebar).toHaveCSS('width', '0px');
   });
 
   test('sidebar collapsed by default on mobile', async ({ page, viewport }) => {
     if (!viewport || viewport.width >= 1024) test.skip();
 
     await page.goto('/');
-    await page.waitForTimeout(300);
     const sidebar = page.locator('aside');
-    const box = await sidebar.boundingBox();
-    expect(box?.width).toBe(0);
+    await expect(sidebar).toHaveCSS('width', '0px');
   });
 });
 
@@ -220,11 +206,8 @@ test.describe('URL state sharing', () => {
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type('div.hello');
 
-    // Wait for debounced hash update
-    await page.waitForTimeout(500);
-
-    const url = page.url();
-    expect(url).toContain('#');
+    // Wait for URL hash to update (auto-wait via polling)
+    await expect(page).toHaveURL(/#.+/);
   });
 
   test('restores content from URL hash', async ({ page }) => {
