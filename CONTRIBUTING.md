@@ -50,6 +50,6 @@ pnpm run preflight
 
 ## Claude Code
 
-This project includes a `.mcp.json` configuration for [Playwright MCP](https://github.com/nicolo-ribaudo/playwright-mcp), which provides browser automation capabilities for AI-assisted development with [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+This project includes a `.mcp.json` configuration for [Playwright MCP](https://github.com/microsoft/playwright-mcp), which provides browser automation capabilities for AI-assisted development with [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
 When using Claude Code, the Playwright MCP server allows the AI to take screenshots, interact with the dev server, and verify changes visually. It starts automatically when Claude Code opens the project.
