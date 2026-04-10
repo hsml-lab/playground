@@ -68,9 +68,7 @@ test.describe('pretty print', () => {
 
     // Output should collapse to at most 2 lines (content + possible trailing empty line)
     const output = page.locator(HTML_OUTPUT);
-    await expect
-      .poll(() => output.locator('.cm-line').count())
-      .toBeLessThanOrEqual(2);
+    await expect.poll(() => output.locator('.cm-line').count()).toBeLessThanOrEqual(2);
   });
 });
 
@@ -151,49 +149,44 @@ test.describe('theme toggle', () => {
 });
 
 test.describe('sidebar', () => {
-  test('toggles sidebar visibility', async ({ page, viewport }) => {
-    if (!viewport || viewport.width < 1024) test.skip();
+  test('has correct default state for viewport', async ({ page, viewport }) => {
+    await page.goto('/');
+    const sidebar = page.locator('aside');
 
+    if (viewport && viewport.width >= 1024) {
+      await expect(sidebar).not.toHaveCSS('width', '0px');
+    } else {
+      await expect(sidebar).toHaveCSS('width', '0px');
+    }
+  });
+
+  test('toggles sidebar visibility', async ({ page, viewport }) => {
     await page.goto('/');
     const sidebar = page.locator('aside');
     const menuButton = page.locator('header button').first();
+    const startsExpanded = !!viewport && viewport.width >= 1024;
 
-    // Sidebar should be expanded on desktop
-    await expect(sidebar).not.toHaveCSS('width', '0px');
+    if (startsExpanded) {
+      await expect(sidebar).not.toHaveCSS('width', '0px');
+    } else {
+      await expect(sidebar).toHaveCSS('width', '0px');
+    }
 
-    // Click hamburger to collapse
+    // First click: toggle from default state
     await menuButton.click();
-    await expect(sidebar).toHaveCSS('width', '0px');
+    if (startsExpanded) {
+      await expect(sidebar).toHaveCSS('width', '0px');
+    } else {
+      await expect(sidebar).not.toHaveCSS('width', '0px');
+    }
 
-    // Click again to expand
+    // Second click: toggle back
     await menuButton.click();
-    await expect(sidebar).not.toHaveCSS('width', '0px');
-  });
-});
-
-test.describe('responsive layout', () => {
-  test('sidebar expanded by default on desktop', async ({ page, viewport }) => {
-    if (!viewport || viewport.width < 1024) test.skip();
-
-    await page.goto('/');
-    const sidebar = page.locator('aside');
-    await expect(sidebar).not.toHaveCSS('width', '0px');
-  });
-
-  test('sidebar collapsed by default on tablet', async ({ page, viewport }) => {
-    if (!viewport || viewport.width >= 1024) test.skip();
-
-    await page.goto('/');
-    const sidebar = page.locator('aside');
-    await expect(sidebar).toHaveCSS('width', '0px');
-  });
-
-  test('sidebar collapsed by default on mobile', async ({ page, viewport }) => {
-    if (!viewport || viewport.width >= 1024) test.skip();
-
-    await page.goto('/');
-    const sidebar = page.locator('aside');
-    await expect(sidebar).toHaveCSS('width', '0px');
+    if (startsExpanded) {
+      await expect(sidebar).not.toHaveCSS('width', '0px');
+    } else {
+      await expect(sidebar).toHaveCSS('width', '0px');
+    }
   });
 });
 
