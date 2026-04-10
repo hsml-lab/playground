@@ -16,21 +16,24 @@ export default defineConfig({
       name: 'desktop',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 1440, height: 900 },
+        viewport: { width: 1512, height: 982 },
+        deviceScaleFactor: 2,
       },
     },
     {
       name: 'tablet',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 768, height: 1024 },
+        viewport: { width: 1194, height: 834 },
+        deviceScaleFactor: 2,
       },
     },
     {
       name: 'mobile',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 375, height: 667 },
+        viewport: { width: 393, height: 852 },
+        deviceScaleFactor: 3,
       },
     },
   ],
