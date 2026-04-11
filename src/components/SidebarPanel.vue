@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ToggleGroupItem, ToggleGroupRoot } from 'reka-ui';
 import { useEditorState } from '../composables/useEditorState';
 import ToggleSwitch from './ToggleSwitch.vue';
 
@@ -12,14 +13,18 @@ aside(class="sidebar shrink-0 h-full overflow-hidden bg-sidebar border-r border-
     nav(class="flex flex-col gap-6 py-6")
       div
         h3(class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3") Mode
-        div(class="flex rounded overflow-hidden border border-border")
-          button(
-            :class="['flex-1 px-3 py-1.5 text-xs font-medium transition-colors', conversionMode === 'compile' ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground hover:bg-muted']"
-            @click="conversionMode = 'compile'"
+        ToggleGroupRoot(
+          :model-value="conversionMode"
+          @update:model-value="(val) => { if (val) conversionMode = val }"
+          class="flex rounded overflow-hidden border border-border"
+        )
+          ToggleGroupItem(
+            value="compile"
+            class="flex-1 px-3 py-1.5 text-xs font-medium transition-colors data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=off]:bg-background data-[state=off]:text-foreground data-[state=off]:hover:bg-muted"
           ) HSML → HTML
-          button(
-            :class="['flex-1 px-3 py-1.5 text-xs font-medium transition-colors', conversionMode === 'convert' ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground hover:bg-muted']"
-            @click="conversionMode = 'convert'"
+          ToggleGroupItem(
+            value="convert"
+            class="flex-1 px-3 py-1.5 text-xs font-medium transition-colors data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=off]:bg-background data-[state=off]:text-foreground data-[state=off]:hover:bg-muted"
           ) HTML → HSML
       hr(class="border-border")
       template(v-if="conversionMode === 'compile'")
