@@ -201,6 +201,37 @@ test.describe('diagnostics', () => {
   });
 });
 
+test.describe('share button', () => {
+  test('copies URL to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('./');
+
+    await page.getByRole('button', { name: 'Share URL' }).click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toContain('playground');
+  });
+
+  test('shows toast notification', async ({ page }) => {
+    await page.goto('./');
+
+    await page.getByRole('button', { name: 'Share URL' }).click();
+
+    const toast = page.locator('[data-state="open"]', { hasText: 'URL copied to clipboard' });
+    await expect(toast).toBeVisible();
+  });
+
+  test('toast disappears after timeout', async ({ page }) => {
+    await page.goto('./');
+
+    await page.getByRole('button', { name: 'Share URL' }).click();
+
+    const toast = page.locator('[data-state="open"]', { hasText: 'URL copied to clipboard' });
+    await expect(toast).toBeVisible();
+    await expect(toast).not.toBeVisible({ timeout: 5000 });
+  });
+});
+
 test.describe('theme toggle', () => {
   test('toggles dark class on html element', async ({ page }) => {
     await page.goto('./');
