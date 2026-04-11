@@ -59,6 +59,27 @@ body,
   border-right-width: 0;
 }
 
+.splitter-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: hsl(var(--border));
+  transition: background-color 150ms ease;
+}
+
+.splitter-handle:hover,
+.splitter-handle[data-state='drag'] {
+  background-color: hsl(var(--primary));
+}
+
+.splitter-handle[data-orientation='horizontal'] {
+  width: 3px;
+}
+
+.splitter-handle[data-orientation='vertical'] {
+  height: 3px;
+}
+
 .cm-editor {
   height: 100%;
   width: 100%;
