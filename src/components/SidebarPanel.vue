@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ToggleGroupItem, ToggleGroupRoot } from 'reka-ui';
+import { Separator, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui';
 import { useEditorState } from '../composables/useEditorState';
 import ToggleSwitch from './ToggleSwitch.vue';
 
@@ -26,7 +26,7 @@ aside(class="sidebar shrink-0 h-full overflow-hidden bg-sidebar border-r border-
             value="convert"
             class="flex-1 px-3 py-1.5 text-xs font-medium transition-colors data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=off]:bg-background data-[state=off]:text-foreground data-[state=off]:hover:bg-muted"
           ) HTML → HSML
-      hr(class="border-border")
+      Separator(class="h-px bg-border")
       template(v-if="conversionMode === 'compile'")
         div
           h3(class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3") Formatter
@@ -53,13 +53,13 @@ aside(class="sidebar shrink-0 h-full overflow-hidden bg-sidebar border-r border-
               class="w-full px-3 py-1.5 text-sm font-medium rounded bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
               @click="formatSource"
             ) Format
-        hr(class="border-border")
+        Separator(class="h-px bg-border")
         div
           h3(class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3") Compiler
           label(class="flex items-center gap-2 text-sm text-sidebar-foreground cursor-pointer")
             ToggleSwitch(v-model="prettyPrint")
             span Pretty print
-        hr(class="border-border")
+        Separator(class="h-px bg-border")
         div
           h3(class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3") Diagnostics
           label(class="flex items-center gap-2 text-sm text-sidebar-foreground cursor-pointer")
