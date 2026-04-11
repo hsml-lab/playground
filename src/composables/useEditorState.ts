@@ -1,3 +1,4 @@
+import { useDebounceFn } from '@vueuse/core';
 import LZString from 'lz-string';
 import { reactive, ref, watch } from 'vue';
 import { compile, format, htmlToHsml } from './useHsml';
@@ -75,9 +76,6 @@ const formatterOptions = reactive({
   printWidth: 80,
 });
 
-let compileTimer: ReturnType<typeof setTimeout> | undefined;
-let convertTimer: ReturnType<typeof setTimeout> | undefined;
-
 function compileSource() {
   const result = compile(hsmlSource.value, {
     pretty: prettyPrint.value,
@@ -97,17 +95,24 @@ function convertSource() {
   }
 }
 
+const debouncedCompile = useDebounceFn(() => {
+  if (conversionMode.value !== 'compile') return;
+  compileSource();
+  writeToHash('compile', hsmlSource.value);
+}, 150);
+
+const debouncedConvert = useDebounceFn(() => {
+  if (conversionMode.value !== 'convert') return;
+  convertSource();
+  writeToHash('convert', htmlInput.value);
+}, 150);
+
 // HSML → HTML compilation
 watch(
   [hsmlSource, prettyPrint],
   () => {
     if (conversionMode.value !== 'compile') return;
-    clearTimeout(compileTimer);
-    compileTimer = setTimeout(() => {
-      if (conversionMode.value !== 'compile') return;
-      compileSource();
-      writeToHash('compile', hsmlSource.value);
-    }, 150);
+    debouncedCompile();
   },
   { immediate: true },
 );
@@ -117,20 +122,13 @@ watch(
   [htmlInput],
   () => {
     if (conversionMode.value !== 'convert') return;
-    clearTimeout(convertTimer);
-    convertTimer = setTimeout(() => {
-      if (conversionMode.value !== 'convert') return;
-      convertSource();
-      writeToHash('convert', htmlInput.value);
-    }, 150);
+    debouncedConvert();
   },
   { immediate: true },
 );
 
 // Trigger on mode switch — carry over the output as the new input
 watch(conversionMode, (mode) => {
-  clearTimeout(compileTimer);
-  clearTimeout(convertTimer);
   if (mode === 'compile') {
     if (hsmlOutput.value) {
       hsmlSource.value = hsmlOutput.value;

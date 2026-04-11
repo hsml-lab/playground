@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useClipboard } from '@vueuse/core';
+import { useClipboard, useTimeoutFn } from '@vueuse/core';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -8,13 +8,18 @@ const props = defineProps<{
 
 const { copy } = useClipboard();
 const copied = ref(false);
+const { start } = useTimeoutFn(
+  () => {
+    copied.value = false;
+  },
+  2000,
+  { immediate: false },
+);
 
 function copyText() {
   copy(props.text);
   copied.value = true;
-  setTimeout(() => {
-    copied.value = false;
-  }, 2000);
+  start();
 }
 </script>
 
