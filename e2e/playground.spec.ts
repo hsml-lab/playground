@@ -22,6 +22,52 @@ async function expandSidebar(page: Page) {
   }
 }
 
+test.describe('SEO meta tags', () => {
+  test('has correct title', async ({ page }) => {
+    await page.goto('./');
+    await expect(page).toHaveTitle('HSML Playground');
+  });
+
+  test('has meta description', async ({ page }) => {
+    await page.goto('./');
+    const description = page.locator('meta[name="description"]');
+    await expect(description).toHaveAttribute('content', /HSML.*HTML.*real-time/);
+  });
+
+  test('has Open Graph tags', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'HSML Playground',
+    );
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
+      'content',
+      /HSML/,
+    );
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', /playground/);
+  });
+
+  test('has Twitter card tags', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+      'content',
+      'HSML Playground',
+    );
+  });
+
+  test('has theme-color', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', /.+/);
+  });
+
+  test('has favicon', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', /favicon\.svg/);
+  });
+});
+
 test.describe('page load', () => {
   test('shows header with title and version', async ({ page }) => {
     await page.goto('./');
