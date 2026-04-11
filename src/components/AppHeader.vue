@@ -26,7 +26,7 @@ header(class="h-12 flex items-center justify-between shrink-0 px-4 border-b bord
       :title="sidebarOpen ? 'Hide sidebar' : 'Show sidebar'"
       @click="toggleSidebar"
     )
-      span(class="icon-[lucide--menu] text-xl")
+      span(class="block icon-[lucide--menu] text-xl")
     span(class="text-lg font-bold text-foreground") HSML
     span(class="text-xs text-muted-foreground") {{ hsmlVersion }}
   div(class="flex items-center gap-1")
@@ -35,14 +35,14 @@ header(class="h-12 flex items-center justify-between shrink-0 px-4 border-b bord
       title="Share URL"
       @click="share"
     )
-      span(class="icon-[lucide--share-2] text-xl")
+      span(class="block icon-[lucide--share-2] text-xl")
     button(
       class="p-2 rounded text-muted-foreground hover:bg-muted"
       @click="toggleTheme"
       :title="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
     )
-      span(v-if="theme === 'dark'" class="icon-[lucide--sun] text-xl")
-      span(v-else class="icon-[lucide--moon] text-xl")
+      span(v-if="theme === 'dark'" class="block icon-[lucide--sun] text-xl")
+      span(v-else class="block icon-[lucide--moon] text-xl")
     a(
       class="p-2 rounded text-muted-foreground hover:bg-muted"
       href="https://github.com/hsml-lab/hsml"
@@ -50,7 +50,7 @@ header(class="h-12 flex items-center justify-between shrink-0 px-4 border-b bord
       rel="noopener noreferrer"
       title="GitHub"
     )
-      span(class="icon-[lucide--github] text-xl")
+      span(class="block icon-[lucide--github] text-xl")
 
 ToastProvider
   ToastRoot(
