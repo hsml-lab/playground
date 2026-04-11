@@ -1,3 +1,4 @@
+import LZString from 'lz-string';
 import { reactive, ref, watch } from 'vue';
 import { compile, format, htmlToHsml } from './useHsml';
 import type { HsmlDiagnostic } from './useHsml';
@@ -37,24 +38,19 @@ const DEFAULT_HTML_INPUT = `<!DOCTYPE html>
 function readFromHash(): { mode: ConversionMode; source: string } | undefined {
   const hash = window.location.hash.slice(1);
   if (!hash) return undefined;
-  try {
-    if (hash.startsWith('h:')) {
-      return { mode: 'convert', source: decodeURIComponent(atob(hash.slice(2))) };
-    }
-    if (hash.startsWith('c:')) {
-      return { mode: 'compile', source: decodeURIComponent(atob(hash.slice(2))) };
-    }
-    // Backward compat: no prefix = compile mode
-    return { mode: 'compile', source: decodeURIComponent(atob(hash)) };
-  } catch {
-    return undefined;
-  }
+
+  const prefixMatch = hash.match(/^([ch]):(.*)/);
+  if (!prefixMatch) return undefined;
+  const mode: ConversionMode = prefixMatch[1] === 'h' ? 'convert' : 'compile';
+  const source = LZString.decompressFromEncodedURIComponent(prefixMatch[2]!);
+  if (!source) return undefined;
+  return { mode, source };
 }
 
 function writeToHash(mode: ConversionMode, source: string): void {
   const prefix = mode === 'convert' ? 'h:' : 'c:';
-  const encoded = prefix + btoa(encodeURIComponent(source));
-  history.replaceState(null, '', `#${encoded}`);
+  const compressed = LZString.compressToEncodedURIComponent(source);
+  history.replaceState(null, '', `#${prefix}${compressed}`);
 }
 
 const hashState = readFromHash();

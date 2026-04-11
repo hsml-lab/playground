@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
+import LZString from 'lz-string';
 
 const EDITABLE_EDITOR = ':not(.editor-readonly) > .cm-editor .cm-content';
 const READONLY_OUTPUT = '.editor-readonly .cm-editor .cm-content';
@@ -229,7 +230,7 @@ test.describe('URL state sharing', () => {
 
   test('restores content from URL hash', async ({ page }) => {
     const source = 'p.hello';
-    const encoded = Buffer.from(encodeURIComponent(source)).toString('base64');
+    const encoded = 'c:' + LZString.compressToEncodedURIComponent(source);
 
     await page.goto(`./#${encoded}`);
     const editor = page.locator(EDITABLE_EDITOR);
@@ -328,7 +329,7 @@ test.describe('convert mode (HTML → HSML)', () => {
 
   test('restores convert mode from URL hash', async ({ page }) => {
     const source = '<p>Hello</p>';
-    const encoded = 'h:' + Buffer.from(encodeURIComponent(source)).toString('base64');
+    const encoded = 'h:' + LZString.compressToEncodedURIComponent(source);
 
     await page.goto(`./#${encoded}`);
 
