@@ -237,6 +237,48 @@ test.describe('URL state sharing', () => {
   });
 });
 
+test.describe('editor labels', () => {
+  test('shows HSML and HTML labels in compile mode', async ({ page }) => {
+    await page.goto('./');
+    const labels = page.locator('button', { hasText: /^(HSML|HTML)$/ });
+    await expect(labels).toHaveCount(2);
+    await expect(labels.first()).toContainText('HSML');
+    await expect(labels.last()).toContainText('HTML');
+  });
+
+  test('clicking label toggles conversion mode', async ({ page }) => {
+    await page.goto('./');
+
+    // Click the HTML label to switch to convert mode
+    const htmlLabel = page.locator('button', { hasText: /^HTML$/ }).first();
+    await htmlLabel.click();
+
+    // Labels should swap — input is now HTML, output is HSML
+    const labels = page.locator('button', { hasText: /^(HSML|HTML)$/ });
+    await expect(labels.first()).toContainText('HTML');
+    await expect(labels.last()).toContainText('HSML');
+  });
+
+  test('clicking label works with sidebar closed', async ({ page }) => {
+    await page.goto('./');
+
+    // Close sidebar if open
+    const sidebar = page.locator('aside');
+    const box = await sidebar.boundingBox();
+    if (box && box.width > 0) {
+      await sidebarToggle(page).click();
+      await expect(sidebar).toHaveCSS('width', '0px');
+    }
+
+    // Click label to switch mode — no sidebar needed
+    const label = page.locator('button', { hasText: /^HTML$/ }).first();
+    await label.click();
+
+    // Should be in convert mode
+    await expect(page).toHaveURL(/h:/);
+  });
+});
+
 test.describe('convert mode (HTML → HSML)', () => {
   async function switchToConvertMode(page: Page) {
     await expandSidebar(page);

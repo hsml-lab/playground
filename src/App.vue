@@ -3,6 +3,7 @@ import { useMediaQuery } from '@vueuse/core';
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui';
 import { computed } from 'vue';
 import AppHeader from './components/AppHeader.vue';
+import EditorLabel from './components/EditorLabel.vue';
 import HsmlEditor from './components/HsmlEditor.vue';
 import HsmlOutput from './components/HsmlOutput.vue';
 import HtmlEditor from './components/HtmlEditor.vue';
@@ -25,15 +26,19 @@ div(class="h-screen flex flex-col bg-background")
     SidebarPanel(:class="sidebarOpen ? 'sidebar-open' : 'sidebar-closed'")
     main(class="flex-1 min-h-0 min-w-0")
       SplitterGroup(:direction="splitterDirection" auto-save-id="hsml-playground-splitter" class="h-full")
-        SplitterPanel(:default-size="50" :min-size="20")
-          template(v-if="conversionMode === 'compile'")
-            HsmlEditor
-          template(v-else)
-            HtmlEditor
+        SplitterPanel(:default-size="50" :min-size="20" class="flex flex-col")
+          EditorLabel(panel="input")
+          div(class="flex-1 min-h-0")
+            template(v-if="conversionMode === 'compile'")
+              HsmlEditor
+            template(v-else)
+              HtmlEditor
         SplitterResizeHandle(class="splitter-handle")
-        SplitterPanel(:default-size="50" :min-size="20")
-          template(v-if="conversionMode === 'compile'")
-            HtmlOutput
-          template(v-else)
-            HsmlOutput
+        SplitterPanel(:default-size="50" :min-size="20" class="flex flex-col")
+          EditorLabel(panel="output")
+          div(class="flex-1 min-h-0")
+            template(v-if="conversionMode === 'compile'")
+              HtmlOutput
+            template(v-else)
+              HsmlOutput
 </template>
