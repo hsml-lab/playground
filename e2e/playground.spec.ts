@@ -366,6 +366,26 @@ test.describe('copy button', () => {
   });
 });
 
+test.describe('savings indicator', () => {
+  test('shows factor on input panel in compile mode', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByText(/\d+\.\d+x/)).toBeVisible();
+  });
+
+  test('shows factor on input panel in convert mode', async ({ page }) => {
+    await page.goto('./');
+    await expandSidebar(page);
+    await page.getByRole('button', { name: 'HTML → HSML' }).click();
+    await expect(page.getByText(/\d+\.\d+x/)).toBeVisible();
+  });
+
+  test('has tooltip with char counts', async ({ page }) => {
+    await page.goto('./');
+    const indicator = page.getByText(/\d+\.\d+x/).locator('..');
+    await expect(indicator).toHaveAttribute('title', /compact.*\d+ vs \d+ chars/);
+  });
+});
+
 test.describe('editor labels', () => {
   test('shows HSML and HTML labels in compile mode', async ({ page }) => {
     await page.goto('./');
