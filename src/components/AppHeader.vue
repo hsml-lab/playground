@@ -5,7 +5,7 @@ import { ref } from 'vue';
 import { useSidebar } from '../composables/useSidebar';
 import { useTheme } from '../composables/useTheme';
 
-const { theme, toggleTheme } = useTheme();
+const { isDark, toggleDark } = useTheme();
 const { sidebarOpen, toggleSidebar } = useSidebar();
 const { copy } = useClipboard();
 
@@ -38,10 +38,10 @@ header(class="h-12 flex items-center justify-between shrink-0 px-4 border-b bord
       span(class="block icon-[lucide--share-2] text-xl")
     button(
       class="p-2 rounded text-muted-foreground hover:bg-muted"
-      @click="toggleTheme"
-      :title="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+      @click="toggleDark()"
+      :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
     )
-      span(v-if="theme === 'dark'" class="block icon-[lucide--sun] text-xl")
+      span(v-if="isDark" class="block icon-[lucide--sun] text-xl")
       span(v-else class="block icon-[lucide--moon] text-xl")
     a(
       class="p-2 rounded text-muted-foreground hover:bg-muted"

@@ -1,18 +1,11 @@
-import { ref, watchEffect } from 'vue';
+import { useDark, useToggle } from '@vueuse/core';
 
-export type Theme = 'dark' | 'light';
-
-const theme = ref<Theme>((localStorage.getItem('hsml-playground-theme') as Theme) ?? 'dark');
-
-watchEffect(() => {
-  localStorage.setItem('hsml-playground-theme', theme.value);
-  document.documentElement.classList.toggle('dark', theme.value === 'dark');
+const isDark = useDark({
+  storageKey: 'hsml-playground-theme',
+  initialValue: 'dark',
 });
+const toggleDark = useToggle(isDark);
 
 export function useTheme() {
-  function toggleTheme() {
-    theme.value = theme.value === 'dark' ? 'light' : 'dark';
-  }
-
-  return { theme, toggleTheme };
+  return { isDark, toggleDark };
 }

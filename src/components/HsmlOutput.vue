@@ -9,7 +9,7 @@ import { useEditorState } from '../composables/useEditorState';
 import { useTheme } from '../composables/useTheme';
 
 const { hsmlOutput } = useEditorState();
-const { theme } = useTheme();
+const { isDark } = useTheme();
 
 const editorRef = ref<HTMLDivElement>();
 let view: EditorView | undefined;
@@ -25,7 +25,7 @@ onMounted(() => {
         basicSetup,
         hsmlLanguage(),
         EditorState.readOnly.of(true),
-        themeCompartment.of(theme.value === 'dark' ? oneDark : []),
+        themeCompartment.of(isDark.value ? oneDark : []),
       ],
     }),
     parent: editorRef.value,
@@ -36,10 +36,10 @@ onBeforeUnmount(() => {
   view?.destroy();
 });
 
-watch(theme, (newTheme) => {
+watch(isDark, (dark) => {
   if (!view) return;
   view.dispatch({
-    effects: themeCompartment.reconfigure(newTheme === 'dark' ? oneDark : []),
+    effects: themeCompartment.reconfigure(dark ? oneDark : []),
   });
 });
 

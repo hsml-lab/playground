@@ -12,7 +12,7 @@ import type { HsmlDiagnostic } from '../composables/useHsml';
 import { useTheme } from '../composables/useTheme';
 
 const { hsmlSource, diagnostics, showDiagnostics } = useEditorState();
-const { theme } = useTheme();
+const { isDark } = useTheme();
 
 const editorRef = ref<HTMLDivElement>();
 let view: EditorView | undefined;
@@ -85,7 +85,7 @@ onMounted(() => {
         indentKeymap,
         updateListener,
         hsmlLanguage(),
-        themeCompartment.of(theme.value === 'dark' ? oneDark : []),
+        themeCompartment.of(isDark.value ? oneDark : []),
         linterCompartment.of(createLintSource()),
       ],
     }),
@@ -97,10 +97,10 @@ onBeforeUnmount(() => {
   view?.destroy();
 });
 
-watch(theme, (newTheme) => {
+watch(isDark, (dark) => {
   if (!view) return;
   view.dispatch({
-    effects: themeCompartment.reconfigure(newTheme === 'dark' ? oneDark : []),
+    effects: themeCompartment.reconfigure(dark ? oneDark : []),
   });
 });
 
