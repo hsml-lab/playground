@@ -46,11 +46,18 @@ test.describe('SEO meta tags', () => {
       /HSML/,
     );
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', /playground/);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      /og-image\.png/,
+    );
   });
 
   test('has Twitter card tags', async ({ page }) => {
     await page.goto('./');
-    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    );
     await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
       'content',
       'HSML Playground',

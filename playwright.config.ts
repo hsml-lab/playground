@@ -14,6 +14,7 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop',
+      testIgnore: /og-image/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1512, height: 982 },
@@ -22,6 +23,7 @@ export default defineConfig({
     },
     {
       name: 'tablet',
+      testIgnore: /og-image/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1194, height: 834 },
@@ -32,12 +34,22 @@ export default defineConfig({
     },
     {
       name: 'mobile',
+      testIgnore: /og-image/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 393, height: 852 },
         deviceScaleFactor: 3,
         isMobile: true,
         hasTouch: true,
+      },
+    },
+    {
+      name: 'og-image',
+      testMatch: /og-image/,
+      snapshotPathTemplate: '{snapshotDir}/{arg}{ext}',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1200, height: 630 },
       },
     },
   ],
