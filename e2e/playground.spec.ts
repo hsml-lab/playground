@@ -379,10 +379,11 @@ test.describe('savings indicator', () => {
     await expect(page.getByText(/\d+\.\d+x/)).toBeVisible();
   });
 
-  test('has tooltip with char counts', async ({ page }) => {
+  test('shows tooltip with char counts on hover', async ({ page }) => {
     await page.goto('./');
-    const indicator = page.getByText(/\d+\.\d+x/).locator('..');
-    await expect(indicator).toHaveAttribute('title', /compact.*\d+ vs \d+ chars/);
+    const indicator = page.getByText(/\d+\.\d+x/);
+    await indicator.hover();
+    await expect(page.getByText(/compact.*\d+ vs \d+ chars/)).toBeVisible();
   });
 });
 

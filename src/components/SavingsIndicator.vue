@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import Tooltip from './Tooltip.vue';
 
 const props = defineProps<{
   sourceLength: number;
@@ -12,6 +13,14 @@ const factor = computed(() => {
   const ratio = props.targetLength / props.sourceLength;
   if (ratio <= 1) return null;
   return ratio;
+});
+
+const tooltipText = computed(() => {
+  if (!factor.value) return '';
+  const f = factor.value.toFixed(1);
+  return props.sentiment === 'positive'
+    ? `HSML is ${f}x more compact than HTML (${props.sourceLength} vs ${props.targetLength} chars)`
+    : `HTML is ${f}x more verbose than HSML (${props.sourceLength} vs ${props.targetLength} chars)`;
 });
 
 // Map factor to a 0-1 scale for color intensity (1x-3.5x range)
@@ -29,25 +38,21 @@ function color(factor: number): string {
   return `rgb(${r}, 50, 50)`;
 }
 
-// Bar width as percentage (1x = 0%, 10x+ = 100%)
 function barWidth(factor: number): number {
   return Math.min(colorIntensity(factor) * 100, 100);
 }
 </script>
 
 <template lang="hsml">
-div(
-  v-if="factor"
-  class="flex items-center gap-1.5 cursor-help"
-  :title="sentiment === 'positive' ? `HSML is ${factor.toFixed(1)}x more compact than HTML (${sourceLength} vs ${targetLength} chars)` : `HTML is ${factor.toFixed(1)}x more verbose than HSML (${sourceLength} vs ${targetLength} chars)`"
-)
-  div(class="w-16 h-1.5 rounded-full bg-muted overflow-hidden")
-    div(
-      class="h-full rounded-full transition-all"
-      :style="{ width: barWidth(factor) + '%', backgroundColor: color(factor) }"
-    )
-  span(
-    class="text-xs font-medium tabular-nums"
-    :style="{ color: color(factor) }"
-  ) {{ factor.toFixed(1) }}x
+Tooltip(v-if="factor" :content="tooltipText")
+  div(class="flex items-center gap-1.5 cursor-help")
+    div(class="w-16 h-1.5 rounded-full bg-muted overflow-hidden")
+      div(
+        class="h-full rounded-full transition-all"
+        :style="{ width: barWidth(factor) + '%', backgroundColor: color(factor) }"
+      )
+    span(
+      class="text-xs font-medium tabular-nums"
+      :style="{ color: color(factor) }"
+    ) {{ factor.toFixed(1) }}x
 </template>

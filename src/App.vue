@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core';
-import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui';
+import { SplitterGroup, SplitterPanel, SplitterResizeHandle, TooltipProvider } from 'reka-ui';
 import { computed } from 'vue';
 import AppHeader from './components/AppHeader.vue';
 import CopyButton from './components/CopyButton.vue';
@@ -28,27 +28,28 @@ const outputText = computed(() =>
 </script>
 
 <template lang="hsml">
-div(class="h-screen flex flex-col bg-background")
-  AppHeader
-  div(class="flex flex-1 min-h-0")
-    SidebarPanel(:class="sidebarOpen ? 'sidebar-open' : 'sidebar-closed'")
-    main(class="flex-1 min-h-0 min-w-0")
-      SplitterGroup(:direction="splitterDirection" auto-save-id="hsml-playground-splitter" class="h-full")
-        SplitterPanel(:default-size="50" :min-size="20" class="flex flex-col")
-          EditorLabel(panel="input")
-          div(class="relative group flex-1 min-h-0")
-            CopyButton(:text="inputText")
-            template(v-if="conversionMode === 'compile'")
-              HsmlEditor
-            template(v-else)
-              HtmlEditor
-        SplitterResizeHandle(class="splitter-handle")
-        SplitterPanel(:default-size="50" :min-size="20" class="flex flex-col")
-          EditorLabel(panel="output")
-          div(class="relative group flex-1 min-h-0")
-            CopyButton(:text="outputText")
-            template(v-if="conversionMode === 'compile'")
-              HtmlOutput
-            template(v-else)
-              HsmlOutput
+TooltipProvider(:delay-duration="300")
+  div(class="h-screen flex flex-col bg-background")
+    AppHeader
+    div(class="flex flex-1 min-h-0")
+      SidebarPanel(:class="sidebarOpen ? 'sidebar-open' : 'sidebar-closed'")
+      main(class="flex-1 min-h-0 min-w-0")
+        SplitterGroup(:direction="splitterDirection" auto-save-id="hsml-playground-splitter" class="h-full")
+          SplitterPanel(:default-size="50" :min-size="20" class="flex flex-col")
+            EditorLabel(panel="input")
+            div(class="relative group flex-1 min-h-0")
+              CopyButton(:text="inputText")
+              template(v-if="conversionMode === 'compile'")
+                HsmlEditor
+              template(v-else)
+                HtmlEditor
+          SplitterResizeHandle(class="splitter-handle")
+          SplitterPanel(:default-size="50" :min-size="20" class="flex flex-col")
+            EditorLabel(panel="output")
+            div(class="relative group flex-1 min-h-0")
+              CopyButton(:text="outputText")
+              template(v-if="conversionMode === 'compile'")
+                HtmlOutput
+              template(v-else)
+                HsmlOutput
 </template>
