@@ -322,6 +322,50 @@ test.describe('URL state sharing', () => {
   });
 });
 
+test.describe('copy button', () => {
+  test('copies output to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('./');
+
+    const output = page.locator(READONLY_OUTPUT);
+    await expect(output).toContainText('<!DOCTYPE html>');
+
+    // Hover the output panel to reveal copy button, then click
+    const outputPanel = page.locator('.editor-readonly').locator('..');
+    await outputPanel.hover();
+    await outputPanel.getByRole('button', { name: 'Copy to clipboard' }).click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toContain('<!DOCTYPE html>');
+  });
+
+  test('copies input to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('./');
+
+    const editor = page.locator(EDITABLE_EDITOR);
+    await expect(editor).toContainText('doctype html');
+
+    // Hover the input panel to reveal copy button, then click
+    const inputPanel = page.locator('.group').filter({ has: page.locator(EDITABLE_EDITOR) });
+    await inputPanel.hover();
+    await inputPanel.getByRole('button', { name: 'Copy to clipboard' }).click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toContain('doctype html');
+  });
+
+  test('shows check icon after copy', async ({ page }) => {
+    await page.goto('./');
+
+    const outputPanel = page.locator('.editor-readonly').locator('..');
+    await outputPanel.hover();
+    await outputPanel.getByRole('button', { name: 'Copy to clipboard' }).click();
+
+    await expect(page.locator('.icon-\\[lucide--check\\]').first()).toBeVisible();
+  });
+});
+
 test.describe('editor labels', () => {
   test('shows HSML and HTML labels in compile mode', async ({ page }) => {
     await page.goto('./');

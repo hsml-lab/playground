@@ -21,5 +21,5 @@ div(class="flex items-center h-8 shrink-0 px-3 border-b border-border bg-backgro
   )
     span(v-if="panel === 'input'") {{ conversionMode === 'compile' ? 'HSML' : 'HTML' }}
     span(v-else) {{ conversionMode === 'compile' ? 'HTML' : 'HSML' }}
-    span(class="icon-[lucide--arrow-left-right] text-xs")
+    span(class="block icon-[lucide--arrow-left-right] text-xs")
 </template>
