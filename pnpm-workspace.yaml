@@ -1,3 +1,7 @@
+minimumReleaseAgeExclude:
+  - hsml
+  - vite-plugin-vue-hsml
+
 allowBuilds:
   esbuild: true
   vue-demi: true
